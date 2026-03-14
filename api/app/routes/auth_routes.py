@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.schema import SignupRequest
+from app.schema import SignupRequest, LoginRequest
 from ..database import SessionLocal
 from ..models import User
 from ..auth import hash_password, verify_password
@@ -37,16 +37,16 @@ def signup(user: SignupRequest, db: Session = Depends(get_db)):
 
 # LOGIN
 @router.post("/login")
-def login(email: str, password: str, db: Session = Depends(get_db)):
+def login(user: LoginRequest, db: Session = Depends(get_db)):
 
-    user = db.query(User).filter(User.email == email).first()
+    db_user = db.query(User).filter(User.email == user.email).first()
 
-    if not user:
+    if not db_user:
         return {"error": "User not found"}
 
-    if not verify_password(password, user.password):
+    if not verify_password(user.password, db_user.password):
         return {"error": "Invalid password"}
 
-    token = create_access_token({"user_id": user.id})
+    token = create_access_token({"user_id": db_user.id})
 
     return {"access_token": token}
