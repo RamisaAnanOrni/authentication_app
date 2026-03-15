@@ -20,18 +20,21 @@ export default function Login(){
         password
       })
 
-      localStorage.setItem("token",res.data.access_token)
+      if (!res.data.access_token) {
+        alert(res.data.detail || "Login failed")
+        return
+      }
 
+      localStorage.setItem("token", res.data.access_token)
       router.push("/dashboard")
 
     }catch(error){
 
-      alert("Login failed")
+      alert(error.response?.data?.detail || "Login failed")
 
     }
 
   }
-
   return(
 
     <div className="p-10">
