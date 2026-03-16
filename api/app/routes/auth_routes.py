@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.schema import SignupRequest, LoginRequest
@@ -42,11 +42,12 @@ def login(user: LoginRequest, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
 
     if not db_user:
-        return {"error": "User not found"}
+        raise HTTPException(status_code=401, detail="Invalid email or password")
 
     if not verify_password(user.password, db_user.password):
-        return {"error": "Invalid password"}
+        raise HTTPException(status_code=401, detail="Invalid email or password")
 
     token = create_access_token({"user_id": db_user.id})
+    role_name = db_user.role.name if db_user.role else "customer"
 
-    return {"access_token": token}
+    return {"access_token": token, "role": role_name}

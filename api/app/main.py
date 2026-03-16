@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from .routes import admin_routes
 from .database import engine
 from .models import Base
 from .routes import auth_routes
@@ -24,3 +26,4 @@ def home():
 
 app.include_router(auth_routes.router)
 app.include_router(user_routes.router)
+app.include_router(admin_routes.router)
